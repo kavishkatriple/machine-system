@@ -3,43 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resource Booking</title>
-    <!-- Google Fonts: Inter -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Machine Daily Recording</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #ec1c24;
-            /* Red */
-            --primary-hover: #be161d;
-            /* Darker Red */
-            --secondary: #FFFFFF;
-            /* White */
-            --bg-body: #FFFFFF;
-            /* White */
-            --bg-card: #FFFFFF;
-            --text-main: #000000;
-            /* Black for contrast */
-            --text-muted: #666666;
-            /* Grey */
-            --success: #ec1c24;
-            /* Red (Unified Theme - or keep green? User said Red and White. usually available is green. check request "unavailable slots red". Available slots maybe white with red border?) */
-            /* Let's keep Available as Green for UX, but primary theme is Red/White. Or make Available White? Use Green for 'Available' text badge for clarity. */
-            /* User said "two tone". Let's try to stick to Red/White/Grey/Black. */
-            /* actually "unavailable slots red" was previous request. */
-            --success: #28a745;
-            /* Keep functional green for availability? Or make it white with border? Let's keep green for now for UX safety, but style the rest Red. */
-            --success-bg: #f8f9fa;
-            --error: #ec1c24;
-            /* Red */
-            --error-bg: #fff5f5;
-            --border: #eeeeee;
-            --radius: 12px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --red: #c0392b;
+            --red-dark: #96281b;
+            --red-soft: #fce4e1;
+            --white: #ffffff;
+            --off-white: #faf8f8;
+            --bg: #f2eded;
+            --bg-section: #fdf6f6;
+            --text: #2c2c2c;
+            --text-sec: #5a5a5a;
+            --text-muted: #999;
+            --border: #e0d4d4;
+            --success: #27ae60;
+            --success-bg: #eafaf1;
+            --error-bg: #fdedec;
+            --warn: #e67e22;
+            --warn-bg: #fef5e7;
+            --r: 10px;
         }
 
         * {
@@ -50,462 +37,565 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
+            background: var(--bg);
+            color: var(--text);
+            padding: 0;
             min-height: 100vh;
-            padding: 40px 20px;
-            line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 680px;
             margin: 0 auto;
+            background: var(--white);
+            min-height: 100vh;
         }
 
+        /* ===== SVG ICON HELPER ===== */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-sm svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .icon-lg svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* ===== LANGUAGE BAR ===== */
+        .lang-bar {
+            background: var(--red-dark);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 6px 16px;
+            gap: 6px;
+        }
+
+        .lang-bar .icon {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .lang-btn {
+            padding: 5px 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 5px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: var(--white);
+            color: var(--red-dark);
+            border-color: var(--white);
+        }
+
+        /* ===== HEADER ===== */
         .header {
+            background: var(--red);
+            color: var(--white);
+            padding: 24px 20px;
             text-align: center;
-            margin-bottom: 40px;
         }
 
-        .logo {
-            height: 80px;
-            width: auto;
-            margin-bottom: 24px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.025em;
-            color: var(--primary);
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 10px;
         }
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
+        .header-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
         }
 
-        .controls {
-            background: var(--bg-card);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: center;
+        .header h1 {
+            font-size: 1.4em;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 0.82em;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .role-badge {
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .date-selector label {
+            gap: 5px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 14px;
+            font-size: 11px;
             font-weight: 500;
-            color: var(--text-main);
-            margin-right: 10px;
+            margin-top: 8px;
         }
 
-        .date-selector input {
-            padding: 10px 16px;
-            font-size: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.2s;
-            font-family: inherit;
-            color: var(--text-main);
-            background: #F8FAFC;
-        }
-
-        .date-selector input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-            background: white;
-        }
-
-        .rooms-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .room-column {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border);
-        }
-
-        .room-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .room-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-body);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            margin-right: 12px;
-        }
-
-        .room-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .time-slots {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Time Slot Card */
-        .time-slot {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: white;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .time-slot:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        /* Available State */
-        .time-slot.available {
-            cursor: pointer;
-            border-left: 4px solid var(--success);
-        }
-
-        .time-slot.available:hover {
-            border-color: var(--success);
-            background-color: #F0FDF4;
-            /* Very light green */
-        }
-
-        /* Booked State */
-        .time-slot.booked {
-            background-color: var(--error-bg);
-            border-left: 4px solid var(--error);
-            cursor: default;
-        }
-
-        .time-slot.booked:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .slot-time {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.95rem;
-        }
-
-        .slot-status-badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 9999px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status-available {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        .status-booked {
-            background: var(--error-bg);
-            color: var(--error);
-        }
-
-        .booked-details {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .booked-user {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-main);
-        }
-
-        .booked-time-range {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .cancel-btn {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-decoration: underline;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            margin-top: 4px;
-            transition: color 0.2s;
-        }
-
-        .cancel-btn:hover {
-            color: var(--error);
-        }
-
-        /* Legend */
-        .legend {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 20px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .dot {
-            width: 10px;
-            height: 10px;
+        .role-dot {
+            width: 6px;
+            height: 6px;
+            background: #2ecc71;
             border-radius: 50%;
         }
 
-        .dot.available {
-            background: var(--success);
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 16px;
         }
 
-        .dot.booked {
-            background: var(--error);
-        }
-
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            /* Slate 900 with opacity */
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-        }
-
-        .modal.active {
+        /* ===== INFO BOX ===== */
+        .info-box {
+            background: var(--red-soft);
+            padding: 12px 14px;
+            border-radius: var(--r);
+            margin-bottom: 16px;
             display: flex;
-            opacity: 1;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 12px;
+            color: var(--red-dark);
+            line-height: 1.5;
+            font-weight: 500;
         }
 
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 480px;
-            padding: 32px;
-            box-shadow: var(--shadow-lg);
-            transform: scale(0.95);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .info-box .icon {
+            color: var(--red);
+            margin-top: 1px;
         }
 
-        .modal.active .modal-content {
-            transform: scale(1);
+        /* ===== MESSAGES ===== */
+        #messageArea .alert {
+            padding: 12px 14px;
+            border-radius: var(--r);
+            margin-bottom: 14px;
+            font-weight: 500;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideDown 0.3s ease;
         }
 
-        .modal-header {
-            margin-bottom: 24px;
-            text-align: center;
+        .alert-success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(39, 174, 96, 0.15);
         }
 
-        .modal-header h2 {
-            font-size: 1.5rem;
+        .alert-error {
+            background: var(--error-bg);
+            color: var(--red);
+            border: 1px solid rgba(192, 57, 43, 0.15);
+        }
+
+        .alert-warning {
+            background: var(--warn-bg);
+            color: var(--warn);
+            border: 1px solid rgba(230, 126, 34, 0.15);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== FORM SECTIONS ===== */
+        .form-section {
+            background: var(--bg-section);
+            padding: 16px;
+            margin-bottom: 14px;
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            color: var(--red);
+            margin-bottom: 14px;
+            font-size: 0.95em;
             font-weight: 700;
-            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
 
-        .modal-header p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-top: 4px;
+        .section-title .icon {
+            color: var(--red);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-main);
+            margin-bottom: 5px;
+            color: var(--text);
+            font-size: 13px;
         }
 
-        .form-group span.required {
-            color: var(--error);
+        .form-group .req {
+            color: var(--red);
         }
 
-        .form-group input,
-        .form-group textarea,
+        .form-group input[type="text"],
+        .form-group input[type="date"],
         .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
+            padding: 11px 12px;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            color: var(--text-main);
-            transition: all 0.2s;
-            background: white;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: var(--white);
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
         }
 
         .form-group input:focus,
-        .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: var(--red);
         }
 
-        .form-group input[readonly] {
-            background-color: #F1F5F9;
-            color: var(--text-muted);
-            cursor: not-allowed;
-            border-color: transparent;
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
         }
 
-        .button-group {
+        .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-top: 30px;
         }
 
-        .btn {
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--text-main);
+        /* ===== MACHINE ENTRY ===== */
+        .machine-entry {
+            background: var(--white);
+            padding: 14px;
+            border-radius: var(--r);
+            margin-bottom: 10px;
             border: 1px solid var(--border);
         }
 
-        .btn-secondary:hover {
-            background: #F8FAFC;
-            border-color: var(--text-muted);
+        .machine-header {
+            color: var(--red);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-section);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        @media (max-width: 768px) {
-            .rooms-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 2rem;
-            }
-
-            body {
-                padding: 20px 10px;
-            }
+        .machine-header .icon {
+            color: var(--red-dark);
         }
 
-        /* Toast Notification */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 2000;
+        /* ===== COLUMN LABELS ===== */
+        .col-labels {
+            display: flex;
+            align-items: center;
+            padding-bottom: 6px;
+            margin-bottom: 2px;
+            border-bottom: 1.5px solid var(--red-soft);
+        }
+
+        .col-labels .spacer {
+            flex: 1;
+        }
+
+        .col-labels .cols {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .col-label-item {
+            width: 64px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .col-divider {
+            color: var(--border);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        /* ===== STATUS ROW ===== */
+        .status-row {
+            display: flex;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid #f3eded;
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-name {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .dual-inputs {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .dual-inputs input {
+            width: 64px;
+            padding: 9px 4px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--off-white);
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .dual-inputs input:focus {
+            outline: none;
+            border-color: var(--red);
+            background: var(--white);
+        }
+
+        .dual-inputs input:not(:placeholder-shown) {
+            background: var(--white);
+            border-color: var(--red);
+        }
+
+        .dual-sep {
+            color: var(--border);
+            font-size: 14px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .action-buttons {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 2px solid var(--bg-section);
         }
 
-        .toast {
-            padding: 14px 24px;
-            border-radius: 10px;
+        .btn {
+            padding: 13px 20px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 14px;
             font-weight: 600;
-            font-size: 0.95rem;
-            color: white;
-            box-shadow: var(--shadow-lg);
-            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
-            max-width: 350px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
         }
 
-        .toast.success {
-            background: #28a745;
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
         }
 
-        .toast.error {
-            background: var(--error);
+        .btn-primary:hover:not(:disabled) {
+            background: var(--red-dark);
         }
 
-        @keyframes toastIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
+        .btn-secondary {
+            background: var(--off-white);
+            color: var(--text-sec);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
             to {
-                transform: translateX(0);
-                opacity: 1;
+                transform: rotate(360deg);
             }
         }
 
-        @keyframes toastOut {
-            from {
-                opacity: 1;
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-section);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 24px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal h3 {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .modal p {
+            color: var(--text-sec);
+            margin-bottom: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons .btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        /* ===== DESKTOP ===== */
+        @media (min-width: 680px) {
+            body {
+                padding: 16px;
             }
 
-            to {
-                opacity: 0;
+            .container {
+                min-height: auto;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 16px 40px rgba(150, 40, 27, 0.1);
+            }
+
+            .action-buttons {
+                flex-direction: row;
+            }
+
+            .header {
+                padding: 30px 28px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .modal-overlay {
+                align-items: center;
+            }
+
+            .modal {
+                margin-bottom: 0;
             }
         }
     </style>
@@ -513,520 +603,340 @@
 
 <body>
     <div class="container">
+        <!-- Language Bar -->
+        <div class="lang-bar">
+            <span class="icon icon-sm">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path
+                        d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" />
+                </svg>
+            </span>
+            <button class="lang-btn active" id="btnEN" onclick="setLanguage('en')">English</button>
+            <button class="lang-btn" id="btnSI" onclick="setLanguage('si')">සිංහල</button>
+        </div>
+
+        <!-- Header -->
         <div class="header">
-            <img src="Triple Holdings_Logo.png" alt="Triple Holdings Logo" class="logo"
-                onerror="this.style.display='none'">
-            <h1>Resource Booking</h1>
-
-        </div>
-
-        <div class="controls">
-            <div class="date-selector">
-                <label for="booking-date">Select Date:</label>
-                <input type="date" id="booking-date">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-6h6v6" />
+                </svg>
+            </div>
+            <h1 data-en="Machine Daily Recording" data-si="යන්ත්‍ර දෛනික වාර්තාව">Machine Daily Recording</h1>
+            <p class="subtitle" data-en="Enter your daily machine status counts"
+                data-si="ඔබේ දෛනික යන්ත්‍ර තත්ත්ව ගණන ඇතුළත් කරන්න">Enter your daily machine status counts</p>
+            <div class="role-badge">
+                <span class="role-dot"></span>
+                <span data-en="Operator Entry Form" data-si="ක්‍රියාකරු ඇතුළත් කිරීමේ පෝරමය">Operator Entry Form</span>
             </div>
         </div>
 
-        <div class="rooms-grid">
-            <!-- Board Room -->
-            <div class="room-column">
-                <div class="room-header">
-                    <div class="room-icon">📊</div>
-                    <div class="room-title">Board Room</div>
-                </div>
-                <div id="boardroom-slots" class="time-slots"></div>
+        <div class="content">
+            <div id="messageArea"></div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4M12 8h.01" />
+                    </svg>
+                </span>
+                <div data-en="Each status has two input boxes: Owned and Rent. Enter the count in the correct box."
+                    data-si="සෑම තත්ත්වයකටම පෙට්ටි දෙකක් ඇත: අයිති සහ කුලියට. නිවැරදි පෙට්ටියේ ගණන ඇතුළත් කරන්න.">Each
+                    status has two input boxes: Owned and Rent. Enter the count in the correct box.</div>
             </div>
 
-            <!-- Meeting Room -->
-            <div class="room-column">
-                <div class="room-header">
-                    <div class="room-icon">💼</div>
-                    <div class="room-title">Meeting Room</div>
-                </div>
-                <div id="meetingroom-slots" class="time-slots"></div>
-            </div>
-        </div>
-
-        <div class="legend">
-            <div class="legend-item">
-                <div class="dot available"></div>
-                <span>Available</span>
-            </div>
-            <div class="legend-item">
-                <div class="dot booked"></div>
-                <span>Booked</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification Container -->
-    <div class="toast-container" id="toast-container"></div>
-
-    <!-- Modal -->
-    <div class="modal" id="booking-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Book Room</h2>
-                <p>Please fill in the details below</p>
-            </div>
-            <form id="booking-form">
-                <div class="form-group">
-                    <label>Employee Name <span class="required">*</span></label>
-                    <input type="text" id="employee-name" required placeholder="John Doe">
-                </div>
-
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <label>Room</label>
-                        <input type="text" id="room-name" readonly>
+            <form id="dataEntryForm">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="icon icon-sm">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+                            </svg>
+                        </span>
+                        <span data-en="Basic Information" data-si="මූලික තොරතුරු">Basic Information</span>
                     </div>
-                    <div>
-                        <label>Date</label>
-                        <input type="text" id="booking-date-display" readonly>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-en="Date" data-si="දිනය">Date</span> <span class="req">*</span></label>
+                            <input type="date" id="recordDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-en="Factory" data-si="කම්හල">Factory</span> <span
+                                    class="req">*</span></label>
+                            <select id="factory" required>
+                                <option value="" data-en="Select" data-si="තෝරන්න">Select</option>
+                                <option value="THHM">THHM - Hambanthota</option>
+                                <option value="THAM">THAM - Ambalanthota</option>
+                                <option value="THGI">THGI - Boyagala</option>
+                                <option value="THMM">THMM - Mamadala</option>
+                                <option value="THKN">THKN - Kane Hambanthota</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-en="Your Name" data-si="ඔබේ නම">Your Name</span></label>
+                        <input type="text" id="operatorName" placeholder="Enter your name"
+                            data-en-placeholder="Enter your name" data-si-placeholder="ඔබේ නම ඇතුළත් කරන්න">
                     </div>
                 </div>
 
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <label>Start Time <span class="required">*</span></label>
-                        <select id="start-time" required>
-                            <option value="">Select</option>
-                        </select>
+                <!-- Machine Status Counts -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="icon icon-sm">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
+                        </span>
+                        <span data-en="Machine Status Counts" data-si="යන්ත්‍ර තත්ත්ව ගණන්">Machine Status Counts</span>
                     </div>
-                    <div>
-                        <label>End Time <span class="required">*</span></label>
-                        <select id="end-time" required>
-                            <option value="">Select</option>
-                        </select>
-                    </div>
+                    <div id="machineEntries"></div>
                 </div>
 
-                <div class="form-group">
-                    <label>Purpose <span class="required">*</span></label>
-                    <textarea id="purpose" required placeholder="Briefly describe the meeting purpose..."
-                        rows="3"></textarea>
-                </div>
-
-                <div class="button-group">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                <!-- Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="icon icon-sm"><svg viewBox="0 0 24 24">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <path d="M17 21v-8H7v8M7 3v5h8" />
+                            </svg></span>
+                        <span data-en="Submit Record" data-si="වාර්තාව යොමු කරන්න">Submit Record</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="confirmClear()">
+                        <span class="icon icon-sm"><svg viewBox="0 0 24 24">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg></span>
+                        <span data-en="Clear Form" data-si="පෝරමය හිස් කරන්න">Clear Form</span>
+                    </button>
                 </div>
             </form>
+        </div>
+
+        <div class="footer" data-en="Machine Daily Recording System" data-si="යන්ත්‍ර දෛනික වාර්තා පද්ධතිය">Machine
+            Daily Recording System</div>
+    </div>
+
+    <!-- Clear Modal -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <h3 data-en="Clear Form?" data-si="පෝරමය හිස් කරන්නද?">Clear Form?</h3>
+            <p data-en="This will reset all fields." data-si="මෙය සියලුම ක්ෂේත්‍ර නැවත සකසනු ඇත.">This will reset all
+                fields.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="resetForm()">
+                    <span data-en="Yes, Clear" data-si="ඔව්, හිස් කරන්න">Yes, Clear</span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <span data-en="Cancel" data-si="අවලංගු කරන්න">Cancel</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // GOOGLE APPS SCRIPT URL - PASTE YOUR DEPLOYED URL HERE
-        // ============================================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ3Q7Xoe8qUcfreMkVMn9EnU7-lnkxeg2U-6DhuHHgurrnZdw4uNZzmg7DkP0y-jR7gg/exec';
-
-        // --- APP LOGIC ---
-
-        // Generate time slots from 8:30 AM to 5:30 PM in 30-minute intervals
-        function generateTimeSlots() {
-            const slots = [];
-            let hour = 8;
-            let minute = 30;
-
-            while (hour < 17 || (hour === 17 && minute <= 30)) {
-                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-                slots.push(timeString);
-
-                minute += 30;
-                if (minute === 60) {
-                    minute = 0;
-                    hour++;
-                }
-            }
-
-            return slots;
-        }
-
-        const timeSlots = generateTimeSlots();
-        let bookings = {};
-        let selectedSlot = null;
-        let isLoading = false;
-
-        // Set today's date as default
-        const dateInput = document.getElementById('booking-date');
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-        dateInput.min = today;
-
-        // --- FETCH BOOKINGS FROM GOOGLE SHEETS ---
-        async function fetchBookings() {
-            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                console.warn('⚠️ Please set your Google Apps Script URL in the SCRIPT_URL variable.');
-                return;
-            }
-
-            try {
-                isLoading = true;
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    bookings = data.bookings || {};
-                    renderSlots();
-                } else {
-                    console.error('Error fetching bookings:', data);
-                }
-            } catch (err) {
-                console.error('Network error fetching bookings:', err);
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        // --- SAVE BOOKING TO GOOGLE SHEETS ---
-        async function saveBooking(bookingData) {
-            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                alert('⚠️ Please set your Google Apps Script URL first!');
-                return false;
-            }
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(bookingData),
-                    headers: { 'Content-Type': 'text/plain' }
-                });
-                const result = await response.json();
-                return result.status === 'success';
-            } catch (err) {
-                console.error('Error saving booking:', err);
-                alert('❌ Network error while saving booking. Please try again.');
-                return false;
-            }
-        }
-
-        // --- DELETE BOOKING FROM GOOGLE SHEETS ---
-        async function deleteBooking(bookingKey) {
-            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
-                alert('⚠️ Please set your Google Apps Script URL first!');
-                return false;
-            }
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'delete', key: bookingKey }),
-                    headers: { 'Content-Type': 'text/plain' }
-                });
-                const result = await response.json();
-                return result.status === 'success';
-            } catch (err) {
-                console.error('Error deleting booking:', err);
-                alert('❌ Network error while cancelling booking. Please try again.');
-                return false;
-            }
-        }
-
-        // --- AUTO-REFRESH: Poll every 5 seconds for real-time updates ---
-        fetchBookings(); // Initial load
-        let pollTimer = setInterval(fetchBookings, 5000); // Refresh every 5 seconds
-
-        // Pause polling when tab is hidden, resume when visible
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearInterval(pollTimer);
-                console.log('⏸️ Tab hidden - polling paused');
-            } else {
-                fetchBookings(); // Fetch immediately when tab becomes visible
-                pollTimer = setInterval(fetchBookings, 5000);
-                console.log('▶️ Tab visible - polling resumed');
-            }
-        });
-
-        function getBookingForSlot(date, room, time) {
-            for (let key in bookings) {
-                const booking = bookings[key];
-                if (booking.date === date && booking.room === room) {
-                    const slots = getSlotsBetween(booking.startTime, booking.endTime);
-                    if (slots.includes(time)) {
-                        return { ...booking, key };
-                    }
-                }
-            }
-            return null;
-        }
-
-        function getSlotsBetween(startTime, endTime) {
-            const startIndex = timeSlots.indexOf(startTime);
-            const endIndex = timeSlots.indexOf(endTime);
-            if (endIndex === -1 && endTime === "18:00") {
-                return timeSlots.slice(startIndex);
-            }
-            return timeSlots.slice(startIndex, endIndex);
-        }
-
-        function renderSlots() {
-            const selectedDate = dateInput.value;
-            const boardroomContainer = document.getElementById('boardroom-slots');
-            const meetingroomContainer = document.getElementById('meetingroom-slots');
-
-            boardroomContainer.innerHTML = '';
-            meetingroomContainer.innerHTML = '';
-
-            timeSlots.forEach(time => {
-                // Board Room
-                const boardBooking = getBookingForSlot(selectedDate, 'Board Room', time);
-                const boardSlot = createSlotElement(time, 'Board Room', boardBooking, selectedDate);
-                boardroomContainer.appendChild(boardSlot);
-
-                // Meeting Room
-                const meetingBooking = getBookingForSlot(selectedDate, 'Meeting Room', time);
-                const meetingSlot = createSlotElement(time, 'Meeting Room', meetingBooking, selectedDate);
-                meetingroomContainer.appendChild(meetingSlot);
-            });
-        }
-
-        function createSlotElement(time, room, booking, date) {
-            const slot = document.createElement('div');
-            slot.className = `time-slot ${booking ? 'booked' : 'available'}`;
-
-            const slotTime = document.createElement('div');
-            slotTime.className = 'slot-time';
-            slotTime.textContent = formatTime(time);
-            slot.appendChild(slotTime);
-
-            if (booking) {
-                const details = document.createElement('div');
-                details.className = 'booked-details';
-
-                const user = document.createElement('div');
-                user.className = 'booked-user';
-                user.textContent = booking.employeeName;
-
-                const range = document.createElement('div');
-                range.className = 'booked-time-range';
-                range.textContent = `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`;
-
-                const purpose = document.createElement('div');
-                purpose.className = 'booked-purpose';
-                purpose.textContent = booking.purpose;
-                purpose.style.fontSize = '0.85rem';
-                purpose.style.fontStyle = 'italic';
-                purpose.style.color = 'var(--text-muted)';
-                purpose.style.marginTop = '4px';
-
-                details.appendChild(user);
-                details.appendChild(range);
-                details.appendChild(purpose);
-
-                const cancelBtn = document.createElement('button');
-                cancelBtn.textContent = 'Cancel';
-                cancelBtn.className = 'cancel-btn';
-                cancelBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    cancelBooking(booking.key);
-                };
-                details.appendChild(cancelBtn);
-
-                slot.appendChild(details);
-            } else {
-                const badge = document.createElement('div');
-                badge.className = 'slot-status-badge status-available';
-                badge.textContent = 'Available';
-                slot.appendChild(badge);
-
-                slot.onclick = () => openBookingModal(time, room, date);
-            }
-
-            return slot;
-        }
-
-        function formatTime(time24) {
-            const [hours, minutes] = time24.split(':');
-            const hour = parseInt(hours);
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            const hour12 = hour % 12 || 12;
-            return `${hour12}:${minutes} ${ampm}`;
-        }
-
-        function populateTimeDropdowns(clickedTime) {
-            const startSelect = document.getElementById('start-time');
-            const endSelect = document.getElementById('end-time');
-
-            startSelect.innerHTML = '<option value="">Select</option>';
-            endSelect.innerHTML = '<option value="">Select</option>';
-
-            timeSlots.forEach(time => {
-                const option = document.createElement('option');
-                option.value = time;
-                option.textContent = formatTime(time);
-                if (time === clickedTime) {
-                    option.selected = true;
-                }
-                startSelect.appendChild(option);
-            });
-
-            startSelect.onchange = () => {
-                const startTime = startSelect.value;
-                const selectedDate = dateInput.value;
-                const room = document.getElementById('room-name').value;
-
-                endSelect.innerHTML = '<option value="">Select</option>';
-
-                if (startTime) {
-                    const startIndex = timeSlots.indexOf(startTime);
-
-                    for (let i = startIndex + 1; i < timeSlots.length; i++) {
-                        const time = timeSlots[i];
-                        if (checkConflict(startIndex, i)) break;
-                        addOption(time);
-                    }
-
-                    const lastSlotStart = "17:30";
-                    if ((startTime === lastSlotStart) || (!checkConflict(startIndex, timeSlots.length))) {
-                        const existingBooking = getBookingForSlot(selectedDate, room, lastSlotStart);
-                        if (!existingBooking || existingBooking.key === selectedSlot?.editKey) {
-                            addOption("18:00");
-                        }
-                    }
-
-                    function checkConflict(startIdx, endIdx) {
-                        const slotsToCheck = timeSlots.slice(startIdx, endIdx);
-                        for (let slot of slotsToCheck) {
-                            const existingBooking = getBookingForSlot(selectedDate, room, slot);
-                            if (existingBooking && existingBooking.key !== selectedSlot?.editKey) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-
-                    function addOption(time) {
-                        const option = document.createElement('option');
-                        option.value = time;
-                        option.textContent = formatTime(time);
-                        endSelect.appendChild(option);
-                    }
-                }
-            };
-
-            startSelect.onchange();
-        }
-
-        function openBookingModal(time, room, date) {
-            selectedSlot = { time, room, date };
-            document.getElementById('employee-name').value = '';
-            document.getElementById('room-name').value = room;
-            document.getElementById('booking-date-display').value = date;
-            document.getElementById('purpose').value = '';
-
-            populateTimeDropdowns(time);
-
-            document.getElementById('booking-modal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('booking-modal').classList.remove('active');
-            selectedSlot = null;
-        }
-        window.closeModal = closeModal;
-
-        // Toast notification (non-blocking, so UI can update)
-        function showNotification(message, type) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function cancelBooking(bookingKey) {
-            const password = prompt("⚠️ Admin Access Required\n\nPlease enter the admin password to cancel this booking:");
-
-            if (password === "admin123") {
-                if (confirm('Are you sure you want to cancel this booking?')) {
-                    // IMMEDIATELY remove from UI
-                    delete bookings[bookingKey];
-                    renderSlots();
-
-                    // Delete from server in background
-                    deleteBooking(bookingKey).then(success => {
-                        if (success) {
-                            showNotification('✅ Booking cancelled!', 'success');
-                            fetchBookings();
-                        } else {
-                            showNotification('❌ Failed to cancel. Refreshing...', 'error');
-                            fetchBookings(); // Re-fetch to restore correct state
-                        }
-                    });
-                }
-            } else if (password !== null) {
-                alert("❌ Incorrect password! Action denied.");
-            }
-        }
-
-        document.getElementById('booking-form').onsubmit = async function (e) {
-            e.preventDefault();
-
-            const employeeName = document.getElementById('employee-name').value;
-            const purpose = document.getElementById('purpose').value;
-            const startTime = document.getElementById('start-time').value;
-            const endTime = document.getElementById('end-time').value;
-            const room = document.getElementById('room-name').value;
-            const date = dateInput.value;
-
-            if (!startTime || !endTime) {
-                alert('Please select both start and end times');
-                return;
-            }
-
-            const bookingKey = `${date}_${room.replace(/ /g, '')}_${startTime.replace(':', '')}_${Date.now()}`;
-
-            const bookingData = {
-                key: bookingKey,
-                employeeName,
-                room,
-                date,
-                startTime,
-                endTime,
-                purpose
-            };
-
-            // Disable submit button while saving
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Saving...';
-
-            // IMMEDIATELY update local state and UI BEFORE saving to server
-            bookings[bookingKey] = {
-                employeeName, room, date, startTime, endTime, purpose
-            };
-            closeModal();
-            renderSlots(); // UI updates NOW — slot shows as booked immediately
-
-            // Save to server in background
-            const success = await saveBooking(bookingData);
-
-            if (success) {
-                // Show success message AFTER UI has already updated
-                showNotification('✅ Booking confirmed!', 'success');
-                // Refresh from server to confirm
-                fetchBookings();
-            } else {
-                // If save failed, remove from local state and re-render
-                delete bookings[bookingKey];
-                renderSlots();
-                alert('❌ Failed to save booking. Please try again.');
-            }
-
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Confirm Booking';
+        const CONFIG = {
+            SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwE7AuSSg9yxUZByjyGWvR_5nxiIJqBG_wJTSbbruKvc6qavQ_Ps_Vltv3f95A26awl/exec',
+            machineTypes: [
+                'Over Lock', 'Right Cutter', 'Left Cutter', 'Bar Tack',
+                'Flat Seam', 'Ringer', 'Single Needle', 'Head Seal', 'Flat Bed'
+            ],
+            statusTypes: [
+                'Absent', 'No Allocation/Idle', 'Feeding', 'Line Balancing',
+                'Replace', 'Additional', 'Breakdown'
+            ]
         };
 
-        dateInput.addEventListener('change', () => {
-            renderSlots();
-            fetchBookings(); // Refresh from server when date changes
+        const T = {
+            machines: {
+                'Over Lock': { en: 'Over Lock', si: 'ඕවර් ලොක්' },
+                'Right Cutter': { en: 'Right Cutter', si: 'දකුණු කටර්' },
+                'Left Cutter': { en: 'Left Cutter', si: 'වම් කටර්' },
+                'Bar Tack': { en: 'Bar Tack', si: 'බාර් ටැක්' },
+                'Flat Seam': { en: 'Flat Seam', si: 'ෆ්ලැට් සීම්' },
+                'Ringer': { en: 'Ringer', si: 'රින්ගර්' },
+                'Single Needle': { en: 'Single Needle', si: 'තනි ඉඳිකටු' },
+                'Head Seal': { en: 'Head Seal', si: 'හෙඩ් සීල්' },
+                'Flat Bed': { en: 'Flat Bed', si: 'ෆ්ලැට් බෙඩ්' }
+            },
+            statuses: {
+                'Absent': { en: 'Absent', si: 'නොපැමිණීම' },
+                'No Allocation/Idle': { en: 'No Allocation/Idle', si: 'වෙන් කිරීම් නැත' },
+                'Feeding': { en: 'Feeding', si: 'පෝෂණය' },
+                'Line Balancing': { en: 'Line Balancing', si: 'රේඛා සමතුලනය' },
+                'Replace': { en: 'Replace', si: 'ප්‍රතිස්ථාපනය' },
+                'Additional': { en: 'Additional', si: 'අමතර' },
+                'Breakdown': { en: 'Breakdown', si: 'බිඳ වැටීම' }
+            },
+            owned: { en: 'Owned', si: 'අයිති' },
+            rent: { en: 'Rent', si: 'කුලියට' }
+        };
+
+        let currentLang = 'en';
+
+        // SVG icon for gear (used in machine headers)
+        const gearSVG = '<span class="icon icon-sm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+            document.getElementById('btnSI').classList.toggle('active', lang === 'si');
+            document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+                if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') {
+                    el.textContent = el.getAttribute('data-' + lang);
+                }
+            });
+            document.querySelectorAll('[data-' + lang + '-placeholder]').forEach(el => {
+                el.placeholder = el.getAttribute('data-' + lang + '-placeholder');
+            });
+            renderMachineEntries();
+        }
+
+        function initializeForm() {
+            document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+            renderMachineEntries();
+        }
+
+        function renderMachineEntries() {
+            const container = document.getElementById('machineEntries');
+            const saved = {};
+            container.querySelectorAll('input[type="number"]').forEach(i => {
+                if (i.value) saved[i.id] = i.value;
+            });
+            container.innerHTML = '';
+
+            CONFIG.machineTypes.forEach((machine, idx) => {
+                const el = document.createElement('div');
+                el.className = 'machine-entry';
+                const name = T.machines[machine] ? T.machines[machine][currentLang] : machine;
+                const ownedL = T.owned[currentLang];
+                const rentL = T.rent[currentLang];
+
+                let h = `<div class="machine-header">${gearSVG} ${name}</div>`;
+                h += `<div class="col-labels"><div class="spacer"></div><div class="cols"><div class="col-label-item">${ownedL}</div><div class="col-divider">|</div><div class="col-label-item">${rentL}</div></div></div>`;
+
+                CONFIG.statusTypes.forEach(status => {
+                    const sid = status.replace(/[/\s]/g, '_');
+                    const oId = `m${idx}_${sid}_owned`;
+                    const rId = `m${idx}_${sid}_rent`;
+                    const sName = T.statuses[status] ? T.statuses[status][currentLang] : status;
+                    h += `<div class="status-row">
+                        <div class="status-name">${sName}</div>
+                        <div class="dual-inputs">
+                            <input type="number" id="${oId}" min="0" placeholder="0" inputmode="numeric" data-machine="${machine}" data-status="${status}" data-ownership="Owned">
+                            <span class="dual-sep">|</span>
+                            <input type="number" id="${rId}" min="0" placeholder="0" inputmode="numeric" data-machine="${machine}" data-status="${status}" data-ownership="Rent">
+                        </div>
+                    </div>`;
+                });
+
+                el.innerHTML = h;
+                container.appendChild(el);
+            });
+
+            Object.keys(saved).forEach(id => {
+                const e = document.getElementById(id);
+                if (e) e.value = saved[id];
+            });
+        }
+
+        function showMessage(msg, type) {
+            const area = document.getElementById('messageArea');
+            area.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                const a = area.querySelector('.alert');
+                if (a) { a.style.transition = 'opacity 0.3s'; a.style.opacity = '0'; setTimeout(() => area.innerHTML = '', 300); }
+            }, 5000);
+        }
+
+        function validateData() {
+            let has = false;
+            document.querySelectorAll('#machineEntries input[type="number"]').forEach(i => {
+                if ((parseInt(i.value) || 0) > 0) has = true;
+            });
+            return has;
+        }
+
+        function confirmClear() { document.getElementById('clearModal').classList.add('active'); }
+        function closeModal() { document.getElementById('clearModal').classList.remove('active'); }
+        function resetForm() {
+            closeModal();
+            document.getElementById('dataEntryForm').reset();
+            document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        document.getElementById('dataEntryForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const factory = document.getElementById('factory').value;
+            if (!factory) { showMessage(currentLang === 'si' ? 'කරුණාකර කම්හල තෝරන්න.' : 'Please select your Factory.', 'warning'); return; }
+            if (!validateData()) { showMessage(currentLang === 'si' ? 'කරුණාකර අවම වශයෙන් එක් ගණනක් ඇතුළත් කරන්න.' : 'Please enter at least one count.', 'warning'); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> ' + (currentLang === 'si' ? 'යොමු කරමින්...' : 'Submitting...');
+
+            try {
+                const base = {
+                    date: document.getElementById('recordDate').value,
+                    factory, operatorName: document.getElementById('operatorName').value,
+                    timestamp: new Date().toISOString()
+                };
+                const ownedM = [], rentM = [];
+                CONFIG.machineTypes.forEach((machine, idx) => {
+                    const od = { type: machine, statuses: {} }, rd = { type: machine, statuses: {} };
+                    CONFIG.statusTypes.forEach(status => {
+                        const sid = status.replace(/[/\s]/g, '_');
+                        od.statuses[status] = parseInt(document.getElementById(`m${idx}_${sid}_owned`).value) || 0;
+                        rd.statuses[status] = parseInt(document.getElementById(`m${idx}_${sid}_rent`).value) || 0;
+                    });
+                    ownedM.push(od); rentM.push(rd);
+                });
+                const ownedP = { ...base, ownership: 'Owned', machines: ownedM };
+                const rentP = { ...base, ownership: 'Rent', machines: rentM };
+
+                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                    saveLocally(ownedP, false); saveLocally(rentP, false);
+                    showMessage(currentLang === 'si' ? 'වාර්තාව දේශීයව සුරැකිණි.' : 'Record saved locally. Configure Script URL to sync.', 'success');
+                } else {
+                    await sendToServer(ownedP); await sendToServer(rentP);
+                    saveLocally(ownedP, true); saveLocally(rentP, true);
+                    showMessage(currentLang === 'si' ? 'වාර්තාව සාර්ථකව යොමු කරන ලදී.' : 'Record submitted successfully.', 'success');
+                }
+                setTimeout(() => resetForm(), 2500);
+            } catch (err) {
+                showMessage(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="icon icon-sm"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></span> <span data-en="Submit Record" data-si="වාර්තාව යොමු කරන්න">' + (currentLang === 'si' ? 'වාර්තාව යොමු කරන්න' : 'Submit Record') + '</span>';
+            }
         });
 
-        // Initial render
-        renderSlots();
+        async function sendToServer(payload) {
+            try {
+                const r = await fetch(CONFIG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' });
+                let res; try { res = await r.json(); } catch { res = r.ok ? { status: 'success' } : null; }
+                if (res && res.status === 'error') throw new Error(res.message);
+            } catch {
+                await fetch(CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+            }
+        }
+
+        function saveLocally(data, synced) {
+            let r = JSON.parse(localStorage.getItem('machineRecords') || '[]');
+            r.push({ ...data, id: Date.now() + Math.random(), synced });
+            localStorage.setItem('machineRecords', JSON.stringify(r));
+        }
+
+        document.getElementById('clearModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+        window.onload = initializeForm;
     </script>
 </body>
 
