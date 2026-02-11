@@ -509,6 +509,22 @@
                 flex-direction: column;
             }
         }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -716,6 +732,8 @@
     </div>
 
     <script>
+        // ===== CONFIGURATION =====
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwE7AuSSg9yxUZByjyGWvR_5nxiIJqBG_wJTSbbruKvc6qavQ_Ps_Vltv3f95A26awl/exec';
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1144jrBeQMGELi0gsGQRXJY2275wtWqVPy08_XJU2knU/edit';
 
         const FACTORY_NAMES = {
@@ -726,6 +744,10 @@
             'THKN': 'Kane Hambanthota'
         };
 
+        // Current records loaded from server
+        let currentRecords = [];
+
+        // ===== CLOCK =====
         function updateClock() {
             const now = new Date();
             document.getElementById('liveClock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -734,13 +756,72 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        function loadData() {
-            let records = JSON.parse(localStorage.getItem('machineRecords') || '[]');
-            updateStats(records);
-            displaySubmissions(records);
-            generateCharts(records);
+        // ===== DATA LOADING (from Google Sheets via Apps Script) =====
+        async function loadData() {
+            const container = document.getElementById('submissionsTable');
+
+            // Show loading state
+            container.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><p>Fetching data from Google Sheets...</p></div>';
+
+            try {
+                const response = await fetch(SCRIPT_URL + '?action=getData');
+                const data = await response.json();
+
+                if (data.status === 'success' && data.records) {
+                    currentRecords = data.records;
+
+                    // Cache to localStorage for offline fallback
+                    localStorage.setItem('machineRecordsCache', JSON.stringify(currentRecords));
+                    localStorage.setItem('machineRecordsCacheTime', new Date().toISOString());
+
+                    updateStats(currentRecords);
+                    displaySubmissions(currentRecords);
+                    generateCharts(currentRecords);
+                    showSyncStatus('✅ Live data from Google Sheets — ' + currentRecords.length + ' records', 'success');
+                } else {
+                    throw new Error(data.message || 'Failed to fetch data');
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+
+                // Fallback: try cached data
+                const cached = localStorage.getItem('machineRecordsCache');
+                if (cached) {
+                    currentRecords = JSON.parse(cached);
+                    const cacheTime = localStorage.getItem('machineRecordsCacheTime') || 'unknown';
+                    updateStats(currentRecords);
+                    displaySubmissions(currentRecords);
+                    generateCharts(currentRecords);
+                    showSyncStatus('⚠️ Offline — showing cached data from ' + new Date(cacheTime).toLocaleString(), 'warning');
+                } else {
+                    currentRecords = [];
+                    updateStats([]);
+                    displaySubmissions([]);
+                    generateCharts([]);
+                    showSyncStatus('❌ Could not connect to Google Sheets. No cached data available.', 'error');
+                }
+            }
         }
 
+        function showSyncStatus(message, type) {
+            let el = document.getElementById('syncStatus');
+            if (!el) {
+                el = document.createElement('div');
+                el.id = 'syncStatus';
+                const header = document.querySelector('.header');
+                header.parentNode.insertBefore(el, header.nextSibling);
+            }
+            const colors = {
+                success: { bg: '#dcfce7', color: '#15803d', border: '#bbf7d0' },
+                warning: { bg: '#ffedd5', color: '#c2410c', border: '#fed7aa' },
+                error: { bg: '#fee2e2', color: '#dc2626', border: '#fecaca' }
+            };
+            const c = colors[type] || colors.success;
+            el.style.cssText = `padding:10px 20px; font-size:0.85rem; font-weight:500; background:${c.bg}; color:${c.color}; border:1px solid ${c.border}; border-radius:8px; margin-bottom:16px; display:flex; align-items:center; gap:8px;`;
+            el.textContent = message;
+        }
+
+        // ===== STATS =====
         function updateStats(records) {
             const today = new Date().toISOString().split('T')[0];
             const todayRecs = records.filter(r => r.date === today);
@@ -748,7 +829,9 @@
             let machines = 0;
 
             records.forEach(r => {
-                if (r.machines) r.machines.forEach(m => Object.values(m.statuses).forEach(c => machines += c));
+                if (r.machines) r.machines.forEach(m => {
+                    if (m.statuses) Object.values(m.statuses).forEach(c => machines += (c || 0));
+                });
             });
 
             document.getElementById('totalSubmissions').textContent = records.length;
@@ -757,6 +840,7 @@
             document.getElementById('totalMachines').textContent = machines;
         }
 
+        // ===== TABLE =====
         function displaySubmissions(records) {
             const container = document.getElementById('submissionsTable');
             if (records.length === 0) {
@@ -764,13 +848,14 @@
                 return;
             }
 
-            let html = `<table><thead><tr><th>Date</th><th>Factory</th><th>Ownership</th><th>Operator</th><th>Machines</th><th>Sync</th><th>Action</th></tr></thead><tbody>`;
+            let html = `<table><thead><tr><th>Date</th><th>Factory</th><th>Ownership</th><th>Operator</th><th>Machines</th><th>Sync</th></tr></thead><tbody>`;
 
-            // Sort by latest
             records.slice().sort((a, b) => (b.timestamp || b.date).localeCompare(a.timestamp || a.date))
                 .slice(0, 50).forEach(r => {
                     let mCount = 0;
-                    if (r.machines) r.machines.forEach(m => Object.values(m.statuses).forEach(c => mCount += c));
+                    if (r.machines) r.machines.forEach(m => {
+                        if (m.statuses) Object.values(m.statuses).forEach(c => mCount += (c || 0));
+                    });
 
                     const syncBadge = r.synced ?
                         `<span class="badge badge-sync"><svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Synced</span>` :
@@ -786,13 +871,13 @@
                     <td>${r.operatorName || '-'}</td>
                     <td>${mCount}</td>
                     <td>${syncBadge}</td>
-                    <td><button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteRecord(${r.id})">Delete</button></td>
                 </tr>`;
                 });
             html += '</tbody></table>';
             container.innerHTML = html;
         }
 
+        // ===== CHARTS =====
         function generateCharts(records) {
             // Factory Chart
             const fCounts = {};
@@ -836,55 +921,58 @@
             }
         }
 
+        // ===== FILTERING =====
         function filterData() {
             const f = document.getElementById('filterFactory').value;
             const o = document.getElementById('filterOwnership').value;
-            let records = JSON.parse(localStorage.getItem('machineRecords') || '[]');
+            let records = [...currentRecords];
 
             if (f) records = records.filter(r => r.factory === f);
             if (o) records = records.filter(r => r.ownership === o);
 
-            // Just update display, don't change charts logic if we want charts to reflect filtered data (usually yes)
             updateStats(records);
             displaySubmissions(records);
             generateCharts(records);
         }
 
-        function refreshData() {
-            loadData();
+        // ===== ACTIONS =====
+        async function refreshData() {
             const b = event.currentTarget;
             const old = b.innerHTML;
-            b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Updated';
-            setTimeout(() => b.innerHTML = old, 1500);
-        }
+            b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Loading...';
+            b.disabled = true;
 
-        function deleteRecord(id) {
-            if (!confirm('Delete this record locally?')) return;
-            let r = JSON.parse(localStorage.getItem('machineRecords') || '[]');
-            r = r.filter(x => x.id !== id);
-            localStorage.setItem('machineRecords', JSON.stringify(r));
-            loadData();
+            await loadData();
+
+            b.innerHTML = '<svg class="icon icon-sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Updated!';
+            setTimeout(() => { b.innerHTML = old; b.disabled = false; }, 1500);
         }
 
         function confirmDeleteAll() { document.getElementById('deleteModal').classList.add('active'); }
         function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('active'); }
         function deleteAllData() {
-            localStorage.removeItem('machineRecords');
+            localStorage.removeItem('machineRecordsCache');
+            localStorage.removeItem('machineRecordsCacheTime');
+            currentRecords = [];
             closeDeleteModal();
-            loadData();
+            updateStats([]);
+            displaySubmissions([]);
+            generateCharts([]);
+            showSyncStatus('🗑️ Local cache cleared. Click Refresh to re-fetch from Google Sheets.', 'warning');
         }
 
         function downloadCSV() {
-            const records = JSON.parse(localStorage.getItem('machineRecords') || '[]');
-            if (records.length === 0) return alert('No data');
+            if (currentRecords.length === 0) return alert('No data to export');
 
             let csv = '\uFEFFDate,Factory,Ownership,Operator,Machine Type,Status,Count\n';
-            records.forEach(r => {
+            currentRecords.forEach(r => {
                 if (r.machines) {
                     r.machines.forEach(m => {
-                        Object.entries(m.statuses).forEach(([s, c]) => {
-                            if (c > 0) csv += `"${r.date}","${r.factory}","${r.ownership}","${r.operatorName || ''}","${m.type}","${s}",${c}\n`;
-                        });
+                        if (m.statuses) {
+                            Object.entries(m.statuses).forEach(([s, c]) => {
+                                if (c > 0) csv += `"${r.date}","${r.factory}","${r.ownership}","${r.operatorName || ''}","${m.type}","${s}",${c}\n`;
+                            });
+                        }
                     });
                 }
             });
