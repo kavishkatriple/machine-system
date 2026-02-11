@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Machine Daily Recording</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red: #c0392b;
+            --red-dark: #96281b;
+            --red-soft: #fce4e1;
+            --white: #ffffff;
+            --off-white: #faf8f8;
+            --bg: #f2eded;
+            --bg-section: #fdf6f6;
+            --text: #2c2c2c;
+            --text-sec: #5a5a5a;
+            --text-muted: #999;
+            --border: #e0d4d4;
+            --success: #27ae60;
+            --success-bg: #eafaf1;
+            --error-bg: #fdedec;
+            --warn: #e67e22;
+            --warn-bg: #fef5e7;
+            --r: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 0;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            background: var(--white);
+            min-height: 100vh;
+        }
+
+        /* ===== SVG ICON HELPER ===== */
+        .icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-sm svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .icon-lg svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* ===== LANGUAGE BAR ===== */
+        .lang-bar {
+            background: var(--red-dark);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 6px 16px;
+            gap: 6px;
+        }
+
+        .lang-bar .icon {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .lang-btn {
+            padding: 5px 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 5px;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: var(--white);
+            color: var(--red-dark);
+            border-color: var(--white);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--red);
+            color: var(--white);
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .header-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .header h1 {
+            font-size: 1.4em;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 0.82em;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 14px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        .role-dot {
+            width: 6px;
+            height: 6px;
+            background: #2ecc71;
+            border-radius: 50%;
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 16px;
+        }
+
+        /* ===== INFO BOX ===== */
+        .info-box {
+            background: var(--red-soft);
+            padding: 12px 14px;
+            border-radius: var(--r);
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            font-size: 12px;
+            color: var(--red-dark);
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .info-box .icon {
+            color: var(--red);
+            margin-top: 1px;
+        }
+
+        /* ===== MESSAGES ===== */
+        #messageArea .alert {
+            padding: 12px 14px;
+            border-radius: var(--r);
+            margin-bottom: 14px;
+            font-weight: 500;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert-success {
+            background: var(--success-bg);
+            color: var(--success);
+            border: 1px solid rgba(39, 174, 96, 0.15);
+        }
+
+        .alert-error {
+            background: var(--error-bg);
+            color: var(--red);
+            border: 1px solid rgba(192, 57, 43, 0.15);
+        }
+
+        .alert-warning {
+            background: var(--warn-bg);
+            color: var(--warn);
+            border: 1px solid rgba(230, 126, 34, 0.15);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== FORM SECTIONS ===== */
+        .form-section {
+            background: var(--bg-section);
+            padding: 16px;
+            margin-bottom: 14px;
+            border-radius: var(--r);
+            border: 1px solid var(--border);
+        }
+
+        .section-title {
+            color: var(--red);
+            margin-bottom: 14px;
+            font-size: 0.95em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .section-title .icon {
+            color: var(--red);
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .form-group .req {
+            color: var(--red);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: var(--white);
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--red);
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 32px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ===== MACHINE ENTRY ===== */
+        .machine-entry {
+            background: var(--white);
+            padding: 14px;
+            border-radius: var(--r);
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .machine-header {
+            color: var(--red);
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-section);
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .machine-header .icon {
+            color: var(--red-dark);
+        }
+
+        /* ===== COLUMN LABELS ===== */
+        .col-labels {
+            display: flex;
+            align-items: center;
+            padding-bottom: 6px;
+            margin-bottom: 2px;
+            border-bottom: 1.5px solid var(--red-soft);
+        }
+
+        .col-labels .spacer {
+            flex: 1;
+        }
+
+        .col-labels .cols {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .col-label-item {
+            width: 64px;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .col-divider {
+            color: var(--border);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        /* ===== STATUS ROW ===== */
+        .status-row {
+            display: flex;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid #f3eded;
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-name {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .dual-inputs {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .dual-inputs input {
+            width: 64px;
+            padding: 9px 4px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            background: var(--off-white);
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        .dual-inputs input:focus {
+            outline: none;
+            border-color: var(--red);
+            background: var(--white);
+        }
+
+        .dual-inputs input:not(:placeholder-shown) {
+            background: var(--white);
+            border-color: var(--red);
+        }
+
+        .dual-sep {
+            color: var(--border);
+            font-size: 14px;
+        }
+
+        /* ===== BUTTONS ===== */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 2px solid var(--bg-section);
+        }
+
+        .btn {
+            padding: 13px 20px;
+            border: none;
+            border-radius: var(--r);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--red);
+            color: var(--white);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--red-dark);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: var(--off-white);
+            color: var(--text-sec);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2.5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--bg-section);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 24px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal h3 {
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .modal p {
+            color: var(--text-sec);
+            margin-bottom: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-buttons .btn {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        /* ===== DESKTOP ===== */
+        @media (min-width: 680px) {
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                min-height: auto;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 16px 40px rgba(150, 40, 27, 0.1);
+            }
+
+            .action-buttons {
+                flex-direction: row;
+            }
+
+            .header {
+                padding: 30px 28px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            .modal-overlay {
+                align-items: center;
+            }
+
+            .modal {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Language Bar -->
+        <div class="lang-bar">
+            <span class="icon icon-sm">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <path
+                        d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z" />
+                </svg>
+            </span>
+            <button class="lang-btn active" id="btnEN" onclick="setLanguage('en')">English</button>
+            <button class="lang-btn" id="btnSI" onclick="setLanguage('si')">සිංහල</button>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2 20h20M4 20V10l8-6 8 6v10M9 20v-6h6v6" />
+                </svg>
+            </div>
+            <h1 data-en="Machine Daily Recording" data-si="යන්ත්‍ර දෛනික වාර්තාව">Machine Daily Recording</h1>
+            <p class="subtitle" data-en="Enter your daily machine status counts"
+                data-si="ඔබේ දෛනික යන්ත්‍ර තත්ත්ව ගණන ඇතුළත් කරන්න">Enter your daily machine status counts</p>
+            <div class="role-badge">
+                <span class="role-dot"></span>
+                <span data-en="Operator Entry Form" data-si="ක්‍රියාකරු ඇතුළත් කිරීමේ පෝරමය">Operator Entry Form</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="messageArea"></div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4M12 8h.01" />
+                    </svg>
+                </span>
+                <div data-en="Each status has two input boxes: Owned and Rent. Enter the count in the correct box."
+                    data-si="සෑම තත්ත්වයකටම පෙට්ටි දෙකක් ඇත: අයිති සහ කුලියට. නිවැරදි පෙට්ටියේ ගණන ඇතුළත් කරන්න.">Each
+                    status has two input boxes: Owned and Rent. Enter the count in the correct box.</div>
+            </div>
+
+            <form id="dataEntryForm">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="icon icon-sm">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+                            </svg>
+                        </span>
+                        <span data-en="Basic Information" data-si="මූලික තොරතුරු">Basic Information</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-en="Date" data-si="දිනය">Date</span> <span class="req">*</span></label>
+                            <input type="date" id="recordDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label><span data-en="Factory" data-si="කම්හල">Factory</span> <span
+                                    class="req">*</span></label>
+                            <select id="factory" required>
+                                <option value="" data-en="Select" data-si="තෝරන්න">Select</option>
+                                <option value="THHM">THHM - Hambanthota</option>
+                                <option value="THAM">THAM - Ambalanthota</option>
+                                <option value="THGI">THGI - Boyagala</option>
+                                <option value="THMM">THMM - Mamadala</option>
+                                <option value="THKN">THKN - Kane Hambanthota</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><span data-en="Your Name" data-si="ඔබේ නම">Your Name</span></label>
+                        <input type="text" id="operatorName" placeholder="Enter your name"
+                            data-en-placeholder="Enter your name" data-si-placeholder="ඔබේ නම ඇතුළත් කරන්න">
+                    </div>
+                </div>
+
+                <!-- Machine Status Counts -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="icon icon-sm">
+                            <svg viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
+                        </span>
+                        <span data-en="Machine Status Counts" data-si="යන්ත්‍ර තත්ත්ව ගණන්">Machine Status Counts</span>
+                    </div>
+                    <div id="machineEntries"></div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <span class="icon icon-sm"><svg viewBox="0 0 24 24">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                                <path d="M17 21v-8H7v8M7 3v5h8" />
+                            </svg></span>
+                        <span data-en="Submit Record" data-si="වාර්තාව යොමු කරන්න">Submit Record</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="confirmClear()">
+                        <span class="icon icon-sm"><svg viewBox="0 0 24 24">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg></span>
+                        <span data-en="Clear Form" data-si="පෝරමය හිස් කරන්න">Clear Form</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="footer" data-en="Machine Daily Recording System" data-si="යන්ත්‍ර දෛනික වාර්තා පද්ධතිය">Machine
+            Daily Recording System</div>
+    </div>
+
+    <!-- Clear Modal -->
+    <div class="modal-overlay" id="clearModal">
+        <div class="modal">
+            <h3 data-en="Clear Form?" data-si="පෝරමය හිස් කරන්නද?">Clear Form?</h3>
+            <p data-en="This will reset all fields." data-si="මෙය සියලුම ක්ෂේත්‍ර නැවත සකසනු ඇත.">This will reset all
+                fields.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="resetForm()">
+                    <span data-en="Yes, Clear" data-si="ඔව්, හිස් කරන්න">Yes, Clear</span>
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <span data-en="Cancel" data-si="අවලංගු කරන්න">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            SCRIPT_URL: 'YOUR_GOOGLE_SCRIPT_URL_HERE',
+            machineTypes: [
+                'Over Lock', 'Right Cutter', 'Left Cutter', 'Bar Tack',
+                'Flat Seam', 'Ringer', 'Single Needle', 'Head Seal', 'Flat Bed'
+            ],
+            statusTypes: [
+                'Absent', 'No Allocation/Idle', 'Feeding', 'Line Balancing',
+                'Replace', 'Additional', 'Breakdown'
+            ]
+        };
+
+        const T = {
+            machines: {
+                'Over Lock': { en: 'Over Lock', si: 'ඕවර් ලොක්' },
+                'Right Cutter': { en: 'Right Cutter', si: 'දකුණු කටර්' },
+                'Left Cutter': { en: 'Left Cutter', si: 'වම් කටර්' },
+                'Bar Tack': { en: 'Bar Tack', si: 'බාර් ටැක්' },
+                'Flat Seam': { en: 'Flat Seam', si: 'ෆ්ලැට් සීම්' },
+                'Ringer': { en: 'Ringer', si: 'රින්ගර්' },
+                'Single Needle': { en: 'Single Needle', si: 'තනි ඉඳිකටු' },
+                'Head Seal': { en: 'Head Seal', si: 'හෙඩ් සීල්' },
+                'Flat Bed': { en: 'Flat Bed', si: 'ෆ්ලැට් බෙඩ්' }
+            },
+            statuses: {
+                'Absent': { en: 'Absent', si: 'නොපැමිණීම' },
+                'No Allocation/Idle': { en: 'No Allocation/Idle', si: 'වෙන් කිරීම් නැත' },
+                'Feeding': { en: 'Feeding', si: 'පෝෂණය' },
+                'Line Balancing': { en: 'Line Balancing', si: 'රේඛා සමතුලනය' },
+                'Replace': { en: 'Replace', si: 'ප්‍රතිස්ථාපනය' },
+                'Additional': { en: 'Additional', si: 'අමතර' },
+                'Breakdown': { en: 'Breakdown', si: 'බිඳ වැටීම' }
+            },
+            owned: { en: 'Owned', si: 'අයිති' },
+            rent: { en: 'Rent', si: 'කුලියට' }
+        };
+
+        let currentLang = 'en';
+
+        // SVG icon for gear (used in machine headers)
+        const gearSVG = '<span class="icon icon-sm"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+            document.getElementById('btnSI').classList.toggle('active', lang === 'si');
+            document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+                if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA') {
+                    el.textContent = el.getAttribute('data-' + lang);
+                }
+            });
+            document.querySelectorAll('[data-' + lang + '-placeholder]').forEach(el => {
+                el.placeholder = el.getAttribute('data-' + lang + '-placeholder');
+            });
+            renderMachineEntries();
+        }
+
+        function initializeForm() {
+            document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+            renderMachineEntries();
+        }
+
+        function renderMachineEntries() {
+            const container = document.getElementById('machineEntries');
+            const saved = {};
+            container.querySelectorAll('input[type="number"]').forEach(i => {
+                if (i.value) saved[i.id] = i.value;
+            });
+            container.innerHTML = '';
+
+            CONFIG.machineTypes.forEach((machine, idx) => {
+                const el = document.createElement('div');
+                el.className = 'machine-entry';
+                const name = T.machines[machine] ? T.machines[machine][currentLang] : machine;
+                const ownedL = T.owned[currentLang];
+                const rentL = T.rent[currentLang];
+
+                let h = `<div class="machine-header">${gearSVG} ${name}</div>`;
+                h += `<div class="col-labels"><div class="spacer"></div><div class="cols"><div class="col-label-item">${ownedL}</div><div class="col-divider">|</div><div class="col-label-item">${rentL}</div></div></div>`;
+
+                CONFIG.statusTypes.forEach(status => {
+                    const sid = status.replace(/[/\s]/g, '_');
+                    const oId = `m${idx}_${sid}_owned`;
+                    const rId = `m${idx}_${sid}_rent`;
+                    const sName = T.statuses[status] ? T.statuses[status][currentLang] : status;
+                    h += `<div class="status-row">
+                        <div class="status-name">${sName}</div>
+                        <div class="dual-inputs">
+                            <input type="number" id="${oId}" min="0" placeholder="0" inputmode="numeric" data-machine="${machine}" data-status="${status}" data-ownership="Owned">
+                            <span class="dual-sep">|</span>
+                            <input type="number" id="${rId}" min="0" placeholder="0" inputmode="numeric" data-machine="${machine}" data-status="${status}" data-ownership="Rent">
+                        </div>
+                    </div>`;
+                });
+
+                el.innerHTML = h;
+                container.appendChild(el);
+            });
+
+            Object.keys(saved).forEach(id => {
+                const e = document.getElementById(id);
+                if (e) e.value = saved[id];
+            });
+        }
+
+        function showMessage(msg, type) {
+            const area = document.getElementById('messageArea');
+            area.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                const a = area.querySelector('.alert');
+                if (a) { a.style.transition = 'opacity 0.3s'; a.style.opacity = '0'; setTimeout(() => area.innerHTML = '', 300); }
+            }, 5000);
+        }
+
+        function validateData() {
+            let has = false;
+            document.querySelectorAll('#machineEntries input[type="number"]').forEach(i => {
+                if ((parseInt(i.value) || 0) > 0) has = true;
+            });
+            return has;
+        }
+
+        function confirmClear() { document.getElementById('clearModal').classList.add('active'); }
+        function closeModal() { document.getElementById('clearModal').classList.remove('active'); }
+        function resetForm() {
+            closeModal();
+            document.getElementById('dataEntryForm').reset();
+            document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        document.getElementById('dataEntryForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const factory = document.getElementById('factory').value;
+            if (!factory) { showMessage(currentLang === 'si' ? 'කරුණාකර කම්හල තෝරන්න.' : 'Please select your Factory.', 'warning'); return; }
+            if (!validateData()) { showMessage(currentLang === 'si' ? 'කරුණාකර අවම වශයෙන් එක් ගණනක් ඇතුළත් කරන්න.' : 'Please enter at least one count.', 'warning'); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> ' + (currentLang === 'si' ? 'යොමු කරමින්...' : 'Submitting...');
+
+            try {
+                const base = {
+                    date: document.getElementById('recordDate').value,
+                    factory, operatorName: document.getElementById('operatorName').value,
+                    timestamp: new Date().toISOString()
+                };
+                const ownedM = [], rentM = [];
+                CONFIG.machineTypes.forEach((machine, idx) => {
+                    const od = { type: machine, statuses: {} }, rd = { type: machine, statuses: {} };
+                    CONFIG.statusTypes.forEach(status => {
+                        const sid = status.replace(/[/\s]/g, '_');
+                        od.statuses[status] = parseInt(document.getElementById(`m${idx}_${sid}_owned`).value) || 0;
+                        rd.statuses[status] = parseInt(document.getElementById(`m${idx}_${sid}_rent`).value) || 0;
+                    });
+                    ownedM.push(od); rentM.push(rd);
+                });
+                const ownedP = { ...base, ownership: 'Owned', machines: ownedM };
+                const rentP = { ...base, ownership: 'Rent', machines: rentM };
+
+                if (CONFIG.SCRIPT_URL === 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                    saveLocally(ownedP, false); saveLocally(rentP, false);
+                    showMessage(currentLang === 'si' ? 'වාර්තාව දේශීයව සුරැකිණි.' : 'Record saved locally. Configure Script URL to sync.', 'success');
+                } else {
+                    await sendToServer(ownedP); await sendToServer(rentP);
+                    saveLocally(ownedP, true); saveLocally(rentP, true);
+                    showMessage(currentLang === 'si' ? 'වාර්තාව සාර්ථකව යොමු කරන ලදී.' : 'Record submitted successfully.', 'success');
+                }
+                setTimeout(() => resetForm(), 2500);
+            } catch (err) {
+                showMessage(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="icon icon-sm"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></span> <span data-en="Submit Record" data-si="වාර්තාව යොමු කරන්න">' + (currentLang === 'si' ? 'වාර්තාව යොමු කරන්න' : 'Submit Record') + '</span>';
+            }
+        });
+
+        async function sendToServer(payload) {
+            try {
+                const r = await fetch(CONFIG.SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' });
+                let res; try { res = await r.json(); } catch { res = r.ok ? { status: 'success' } : null; }
+                if (res && res.status === 'error') throw new Error(res.message);
+            } catch {
+                await fetch(CONFIG.SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+            }
+        }
+
+        function saveLocally(data, synced) {
+            let r = JSON.parse(localStorage.getItem('machineRecords') || '[]');
+            r.push({ ...data, id: Date.now() + Math.random(), synced });
+            localStorage.setItem('machineRecords', JSON.stringify(r));
+        }
+
+        document.getElementById('clearModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+        window.onload = initializeForm;
+    </script>
+</body>
+
+</html>
